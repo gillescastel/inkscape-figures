@@ -141,8 +141,8 @@ def create(title, root):
     """
     Creates a figure.
 
-    First argument is the figure directory.
-    Second argument is the title of the figure
+    First argument is the title of the figure
+    Second argument is the figure directory.
 
     """
     file_name = title.replace(' ', '-').lower() + '.svg'
