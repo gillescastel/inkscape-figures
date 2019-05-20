@@ -145,6 +145,7 @@ def create(title, root):
     Second argument is the figure directory.
 
     """
+    title = title.strip()
     file_name = title.replace(' ', '-').lower() + '.svg'
     figures = Path(root).absolute()
     if not figures.exists():
