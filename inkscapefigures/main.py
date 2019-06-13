@@ -68,7 +68,7 @@ def cli():
 
 
 @cli.command()
-@click.option('--daemon/--no-daemon', default=False)
+@click.option('--daemon/--no-daemon', default=True)
 def watch(daemon):
     """
     Watches for figures.
