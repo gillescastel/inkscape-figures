@@ -22,9 +22,9 @@ Add the following code to the preamble of your LateX document.
 
 ```tex
 \usepackage{import}
-\usepackage{xifthen}
 \usepackage{pdfpages}
 \usepackage{transparent}
+\usepackage{xcolor}
 
 \newcommand{\incfig}[1]{%
     \def\svgwidth{\columnwidth}
