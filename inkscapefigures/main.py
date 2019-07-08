@@ -26,7 +26,7 @@ def create_latex(name, title, indent=0):
         r"\begin{figure}[ht]",
         r"    \centering",
         rf"    \incfig{{{name}}}",
-        rf"    \caption{{{title.strip()}}}",
+        rf"    \caption{{{title.strip()}}}%",
         rf"    \label{{fig:{name}}}",
         r"\end{figure}"]
 
