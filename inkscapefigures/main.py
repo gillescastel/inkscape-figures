@@ -20,17 +20,32 @@ log = logging.getLogger('inkscape-figures')
 def inkscape(path):
     subprocess.Popen(['inkscape', str(path)])
 
+def indent(text, indentation=0):
+    lines = text.split('\n');
+    return '\n'.join(" " * indentation + line for line in lines)
 
-def create_latex(name, title, indent=0):
-    lines = [
+def beautify(name):
+    return name.replace('_', ' ').replace('-', ' ').title()
+
+def latex_template(name, title):
+    return '\n'.join((
         r"\begin{figure}[ht]",
         r"    \centering",
         rf"    \incfig{{{name}}}",
-        rf"    \caption{{{title.strip()}}}",
+        rf"    \caption{{{title}}}",
         rf"    \label{{fig:{name}}}",
-        r"\end{figure}"]
+        r"\end{figure}"))
 
-    return '\n'.join(" " * indent + line for line in lines)
+# From https://stackoverflow.com/a/67692
+def import_file(name, path):
+    import importlib.util as util
+    spec = util.spec_from_file_location(name, path)
+    module = util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+# Load user config
 
 user_dir = Path(user_config_dir("inkscape-figures", "Castel"))
 
@@ -39,6 +54,7 @@ if not user_dir.is_dir():
 
 roots_file =  user_dir / 'roots'
 template = user_dir / 'template.svg'
+config = user_dir / 'config.py'
 
 if not roots_file.is_file():
     roots_file.touch()
@@ -47,6 +63,11 @@ if not template.is_file():
     source = str(Path(__file__).parent / 'template.svg')
     destination = str(template)
     copy(source, destination)
+
+if config.exists():
+    config_module = import_file('config', config)
+    latex_template = config_module.latex_template
+
 
 def add_root(path):
     path = str(path)
@@ -149,8 +170,8 @@ def watch_daemon():
                 log.debug('Command succeeded')
 
 
-            # Copy the LaTeX code to include the file to the cliboard
-            pyperclip.copy(create_latex(name, beautify(name)))
+            # Copy the LaTeX code to include the file to the clipboard
+            pyperclip.copy(latex_template(name, beautify(name)))
 
 
 
@@ -190,12 +211,7 @@ def create(title, root):
     # Print the code for including the figure to stdout.
     # Copy the indentation of the input.
     leading_spaces = len(title) - len(title.lstrip())
-    print(create_latex(figure_path.stem, title, indent=leading_spaces))
-
-
-def beautify(name):
-    return name.replace('_', ' ').replace('-', ' ').title()
-
+    print(indent(latex_template(figure_path.stem, title), indentation=leading_spaces))
 
 @cli.command()
 @click.argument(
