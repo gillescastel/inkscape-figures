@@ -74,3 +74,19 @@ This does the following:
 1. Set up a file watcher such that whenever the figure is saved as an svg file by pressing <kbd>Ctrl + S</kbd>, it also gets saved as pdf+LaTeX.
 
 To edit figures, press <kbd>Ctrl+F</kbd> in command mode, and a fuzzy search selection dialog will popup allowing you to select the figure you want to edit.
+
+
+## Configuration
+
+You can change the default LaTeX template by creating `~/.config/inkscape-figures/config.py` and adding something on the lines of the following:
+
+```python
+def latex_template(name, title):
+    return '\n'.join((r"\begin{figure}[ht]",
+                      r"    This is a custom LaTeX template!",
+                      r"    \centering",
+                      rf"    \incfig{{{name}}}",
+                      rf"    \caption{{{title}}}",
+                      rf"    \label{{fig:{name}}}",
+                      r"\end{figure}"))
+```
