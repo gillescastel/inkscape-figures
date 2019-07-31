@@ -7,7 +7,7 @@ def readme():
 
 setup(
     name="inkscape-figures",
-    version="1.0.3",
+    version="1.0.4",
     description="Script for managing inkscape figures",
     long_description=readme(),
     long_description_content_type="text/markdown",
