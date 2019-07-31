@@ -181,7 +181,7 @@ def watch_daemon():
 @click.argument(
     'root',
     default=os.getcwd(),
-    type=click.Path(exists=True, file_okay=False, dir_okay=True)
+    type=click.Path(exists=False, file_okay=False, dir_okay=True)
 )
 def create(title, root):
     """
