@@ -12,7 +12,7 @@ You can install it using pip:
 pip install inkscape-figures
 ```
 
-You'll also need [rofi](https://github.com/davatorium/rofi).
+You'll also need [rofi](https://github.com/davatorium/rofi) and Python >= 3.7.
 
 This script only works on Linux. If you're interested in porting it to Windows/OSX, feel free to make a pull request.
 
