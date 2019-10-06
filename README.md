@@ -9,7 +9,7 @@ More information in this [blog post](https://castel.dev/post/lecture-notes-2/).
 You can install it using pip:
 
 ```
-pip install inkscape-figures
+pip3 install inkscape-figures
 ```
 
 You'll also need [rofi](https://github.com/davatorium/rofi).
@@ -78,7 +78,7 @@ To edit figures, press <kbd>Ctrl+F</kbd> in command mode, and a fuzzy search sel
 
 ## Configuration
 
-You can change the default LaTeX template by creating `~/.config/inkscape-figures/config.py` and adding something on the lines of the following:
+You can change the default LaTeX template by creating `~/.config/inkscape-figures/config.py` and adding something along the lines of the following:
 
 ```python
 def latex_template(name, title):
