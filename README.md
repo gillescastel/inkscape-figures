@@ -26,14 +26,18 @@ Add the following code to the preamble of your LateX document.
 \usepackage{transparent}
 \usepackage{xcolor}
 
-\newcommand{\incfig}[1]{%
-    \def\svgwidth{\columnwidth}
-    \import{./figures/}{#1.pdf_tex}
+\newcommand{\incfig}[2][0.3]{%
+    \def\svgwidth{#1\columnwidth}
+    \import{./figures/}{#2.pdf_tex}
 }
+
 \pdfsuppresswarningpagegroup=1
 ```
 
-This assumes the following directory structure:
+**Remark**: By defaut we use `\incfig{figname}` to include an `.pdf_tex` figure. But when you use `minipage` environment or the `\columnwidth`
+is just too big for the figure. You can use `\incfig[0.3]{figname}` to set the figure width to `0.3\columnwidth`.
+
+The settings above assumes the following directory structure:
 
 ```
 master.tex
