@@ -37,7 +37,7 @@ Add the following code to the preamble of your LateX document.
 **Remark**: By defaut we use `\incfig{figname}` to include a `.pdf_tex` figure. But when you use `minipage` environment or the `\columnwidth`
 is just too big for the figure. You can use `\incfig[0.3]{figname}` to set the figure width to `0.3\columnwidth`.
 
-The settings above assumes the following directory structure:
+The settings above assume the following directory structure:
 
 ```
 master.tex
