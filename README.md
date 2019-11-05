@@ -26,14 +26,17 @@ Add the following code to the preamble of your LateX document.
 \usepackage{transparent}
 \usepackage{xcolor}
 
-\newcommand{\incfig}[1]{%
-    \def\svgwidth{\columnwidth}
-    \import{./figures/}{#1.pdf_tex}
+\newcommand{\incfig}[2][1]{%
+    \def\svgwidth{#1\columnwidth}
+    \import{./figures/}{#2.pdf_tex}
 }
+
 \pdfsuppresswarningpagegroup=1
 ```
+This defines a command `\incfig` which can be used to include Inkscape figures.
+By default, `\incfig{figure-name}` make the figure as wide as the page, but it's also possible to change the width by providing an optional argument: `\incfig[0.3]{figure-name}`.
 
-This assumes the following directory structure:
+The settings above assume the following directory structure:
 
 ```
 master.tex
@@ -63,6 +66,7 @@ inoremap <C-f> <Esc>: silent exec '.!inkscape-figures create "'.getline('.').'" 
 nnoremap <C-f> : silent exec '!inkscape-figures edit "'.b:vimtex.root.'/figures/" > /dev/null 2>&1 &'<CR><CR>:redraw!<CR>
 ```
 
+First, run `inkscape-figures watch` in a terminal to setup the file watcher.
 Now, to add a figure, type the title on a new line, and press <kbd>Ctrl+F</kbd> in insert mode.
 This does the following:
 
@@ -85,7 +89,7 @@ def latex_template(name, title):
     return '\n'.join((r"\begin{figure}[ht]",
                       r"    This is a custom LaTeX template!",
                       r"    \centering",
-                      rf"    \incfig{{{name}}}",
+                      rf"    \incfig[1]{{{name}}}",
                       rf"    \caption{{{title}}}",
                       rf"    \label{{fig:{name}}}",
                       r"\end{figure}"))
