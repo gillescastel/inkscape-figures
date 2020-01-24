@@ -1,9 +1,23 @@
 import pathlib
 from setuptools import setup, find_packages
+from distutils.spawn import find_executable
+import platform
+
 
 def readme():
     with open('README.md') as f:
         return f.read()
+
+
+dependencies = ['pyperclip', 'click', 'appdirs', 'daemonize']
+if find_executable("fswatch") is None:
+    if platform.system() == "Linux":
+        dependencies.append("inotify")
+    else:
+        raise ValueError(
+                "inkscape-figures needs fswatch to run on MacOS. You "
+                "can install it using `brew install fswatch`"
+                )
 
 setup(
     name="inkscape-figures",
@@ -22,6 +36,6 @@ setup(
     ],
     packages=['inkscapefigures'],
     scripts=['bin/inkscape-figures'],
-    install_requires=['inotify', 'pyperclip', 'click', 'appdirs', 'daemonize'],
+    install_requires=dependencies,
     include_package_data=True
 )

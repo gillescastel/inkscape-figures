@@ -7,12 +7,19 @@ from pathlib import Path
 from shutil import copy
 from daemonize import Daemonize
 import click
-
-import inotify.adapters
-from inotify.constants import IN_CLOSE_WRITE
-from .rofi import rofi
+import platform
+from .picker import pick
 import pyperclip
 from appdirs import user_config_dir
+
+SYSTEM_NAME = platform.system()
+
+try:
+    import inotify.adapters
+    from inotify.constants import IN_CLOSE_WRITE
+    HAS_INOTIFY = True
+except ImportError:
+    HAS_INOTIFY = False
 
 logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 log = logging.getLogger('inkscape-figures')
@@ -94,17 +101,59 @@ def watch(daemon):
     """
     Watches for figures.
     """
+    if HAS_INOTIFY:
+        watcher_cmd = watch_daemon_inotify
+    else:
+        watcher_cmd = watch_daemon_fswatch
+
     if daemon:
         daemon = Daemonize(app='inkscape-figures',
                            pid='/tmp/inkscape-figures.pid',
-                           action=watch_daemon)
+                           action=watcher_cmd)
         daemon.start()
         log.info("Watching figures.")
     else:
         log.info("Watching figures.")
-        watch_daemon()
+        watcher_cmd()
 
-def watch_daemon():
+
+def maybe_recompile_figure(filepath):
+    filepath = Path(filepath)
+    # A file has changed
+    if filepath.suffix != '.svg':
+        log.debug('File has changed, but is nog an svg {}'.format(
+            filepath.suffix))
+        return
+
+    log.info('Recompiling %s', filepath)
+
+    pdf_path = filepath.parent / (filepath.stem + '.pdf')
+    name = filepath.stem
+
+    command = [
+        'inkscape',
+        '--export-area-page',
+        '--export-dpi', '300',
+        '--export-pdf', pdf_path,
+        '--export-latex', filepath
+    ]
+
+    log.debug('Running command:')
+    log.debug(' '.join(str(e) for e in command))
+
+    # Recompile the svg file
+    completed_process = subprocess.run(command)
+
+    if completed_process.returncode != 0:
+        log.error('Return code %s', completed_process.returncode)
+    else:
+        log.debug('Command succeeded')
+
+    # Copy the LaTeX code to include the file to the clipboard
+    pyperclip.copy(latex_template(name, beautify(name)))
+
+
+def watch_daemon_inotify():
     while True:
         roots = get_roots()
 
@@ -139,40 +188,30 @@ def watch_daemon():
 
             # A file has changed
             path = Path(path) / filename
-
-            if path.suffix != '.svg':
-                log.debug('File has changed, but is nog an svg')
-                continue
-
-            log.info('Recompiling %s', filename)
-
-            pdf_path = path.parent / (path.stem + '.pdf')
-            name = path.stem
+            maybe_recompile_figure(path)
 
 
-            command = [
-                'inkscape',
-                '--export-area-page',
-                '--export-dpi', '300',
-                '--export-pdf', pdf_path,
-                '--export-latex', path
-            ]
+def watch_daemon_fswatch():
+    while True:
+        roots = get_roots()
+        log.info('Watching directories: ' + ', '.join(roots))
+        # Watch the figures directories, as weel as the config directory
+        # containing the roots file (file containing the figures to the figure
+        # directories to watch). If the latter changes, restart the watches.
+        p = subprocess.Popen(
+                ['fswatch', *roots, str(user_dir)], stdout=subprocess.PIPE,
+                universal_newlines=True)
 
-            log.debug('Running command:')
-            log.debug(' '.join(str(e) for e in command))
+        while True:
+            filepath = p.stdout.readline().strip()
 
-            # Recompile the svg file
-            completed_process = subprocess.run(command)
-
-            if completed_process.returncode != 0:
-                log.error('Return code %s', completed_process.returncode)
-            else:
-                log.debug('Command succeeded')
-
-
-            # Copy the LaTeX code to include the file to the clipboard
-            pyperclip.copy(latex_template(name, beautify(name)))
-
+            # If the file containing figure roots has changes, update the
+            # watches
+            if filepath == str(roots_file):
+                log.info('The roots file has been updated. Updating watches.')
+                p.terminate()
+                log.debug('Removed main watch %s')
+            maybe_recompile_figure(filepath)
 
 
 
@@ -232,10 +271,9 @@ def edit(root):
     files = figures.glob('*.svg')
     files = sorted(files, key=lambda f: f.stat().st_mtime, reverse=True)
 
-    # Open a selection dialog using rofi
+    # Open a selection dialog using a gui picker like rofi
     names = [beautify(f.stem) for f in files]
-    _, index, selected = rofi("Select figure", names)
-
+    _, index, selected = pick(names)
     if selected:
         path = files[index]
         add_root(figures)

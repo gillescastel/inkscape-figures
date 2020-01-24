@@ -3,6 +3,12 @@
 A script I use to manage figures for my LaTeX documents.
 More information in this [blog post](https://castel.dev/post/lecture-notes-2/).
 
+## Requirements
+
+You need Python >= 3.7, as well as a picker. Current supported pickers are:
+
+* [rofi](https://github.com/davatorium/rofi) on Linux systems
+* [choose](https://github.com/chipsenkbeil/choose) on MacOS
 
 ## Installation
 
@@ -12,9 +18,7 @@ You can install it using pip:
 pip3 install inkscape-figures
 ```
 
-You'll also need [rofi](https://github.com/davatorium/rofi) and Python >= 3.7.
-
-This script only works on Linux. If you're interested in porting it to Windows/OSX, feel free to make a pull request.
+This package currently works on Linux and MacOS. If you're interested in porting it to Windows, feel free to make a pull request.
 
 ## Setup
 
