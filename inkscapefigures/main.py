@@ -3,6 +3,7 @@
 import os
 import logging
 import subprocess
+import warnings
 from pathlib import Path
 from shutil import copy
 from daemonize import Daemonize
@@ -25,7 +26,11 @@ logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 log = logging.getLogger('inkscape-figures')
 
 def inkscape(path):
-    subprocess.Popen(['inkscape', str(path)])
+    with warnings.catch_warnings():
+        # leaving a subprocess running after interpreter exit raises a
+        # warning in Python3.7+
+        warnings.simplefilter("ignore", ResourceWarning)
+        subprocess.Popen(['inkscape', str(path)])
 
 def indent(text, indentation=0):
     lines = text.split('\n');
@@ -198,9 +203,11 @@ def watch_daemon_fswatch():
         # Watch the figures directories, as weel as the config directory
         # containing the roots file (file containing the figures to the figure
         # directories to watch). If the latter changes, restart the watches.
-        p = subprocess.Popen(
-                ['fswatch', *roots, str(user_dir)], stdout=subprocess.PIPE,
-                universal_newlines=True)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", ResourceWarning)
+            p = subprocess.Popen(
+                    ['fswatch', *roots, str(user_dir)], stdout=subprocess.PIPE,
+                    universal_newlines=True)
 
         while True:
             filepath = p.stdout.readline().strip()
@@ -211,6 +218,7 @@ def watch_daemon_fswatch():
                 log.info('The roots file has been updated. Updating watches.')
                 p.terminate()
                 log.debug('Removed main watch %s')
+                break
             maybe_recompile_figure(filepath)
 
 
