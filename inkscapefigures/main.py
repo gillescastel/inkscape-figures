@@ -15,12 +15,12 @@ from appdirs import user_config_dir
 
 SYSTEM_NAME = platform.system()
 
-try:
+if (SYSTEM_NAME == 'Darwin'): #check whether the system is macos
+    HAS_INOTIFY = False
+else:
     import inotify.adapters
     from inotify.constants import IN_CLOSE_WRITE
     HAS_INOTIFY = True
-except ImportError:
-    HAS_INOTIFY = False
 
 logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 log = logging.getLogger('inkscape-figures')
