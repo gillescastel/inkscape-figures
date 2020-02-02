@@ -13,15 +13,6 @@ from .picker import pick
 import pyperclip
 from appdirs import user_config_dir
 
-SYSTEM_NAME = platform.system()
-
-if (SYSTEM_NAME == 'Darwin'): #check whether the system is macos
-    HAS_INOTIFY = False
-else:
-    import inotify.adapters
-    from inotify.constants import IN_CLOSE_WRITE
-    HAS_INOTIFY = True
-
 logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 log = logging.getLogger('inkscape-figures')
 
@@ -106,7 +97,7 @@ def watch(daemon):
     """
     Watches for figures.
     """
-    if HAS_INOTIFY:
+    if platform.system() == 'Linux':
         watcher_cmd = watch_daemon_inotify
     else:
         watcher_cmd = watch_daemon_fswatch
@@ -134,10 +125,12 @@ def maybe_recompile_figure(filepath):
 
     pdf_path = filepath.parent / (filepath.stem + '.pdf')
     name = filepath.stem
+
     inkscape_version = subprocess.check_output(['inkscape', '--version'])
     log.debug(inkscape_version)
-    inkscape_version_number = float(inkscape_version.split()[1][:3])
-    if (inkscape_version_number >= 0.92):
+    inkscape_version_number = int(inkscape_version.split()[1][0])
+
+    if inkscape_version_number != 0:
         command = [
             'inkscape', filepath,
             '--export-area-page',
@@ -171,6 +164,9 @@ def maybe_recompile_figure(filepath):
 
 
 def watch_daemon_inotify():
+    import inotify.adapters
+    from inotify.constants import IN_CLOSE_WRITE
+
     while True:
         roots = get_roots()
 
