@@ -136,7 +136,7 @@ def maybe_recompile_figure(filepath):
     name = filepath.stem
     inkscape_version = subprocess.check_output(['inkscape', '--version'])
     log.debug(inkscape_version)
-    inkscape_version_number = inkscape_version.split()[1][0]
+    inkscape_version_number = int(inkscape_version.split()[1][0])
     if (inkscape_version_number != 0):
         command = [
             'inkscape', filepath,
