@@ -136,8 +136,8 @@ def maybe_recompile_figure(filepath):
     name = filepath.stem
     inkscape_version = subprocess.check_output(['inkscape', '--version'])
     log.debug(inkscape_version)
-    inkscape_version_number = float(inkscape_version.split()[1][:3])
-    if (inkscape_version_number >= 0.92):
+    inkscape_version_number = inkscape_version.split()[1][0]
+    if (inkscape_version_number != 0):
         command = [
             'inkscape', filepath,
             '--export-area-page',
