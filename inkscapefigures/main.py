@@ -126,7 +126,7 @@ def maybe_recompile_figure(filepath):
     pdf_path = filepath.parent / (filepath.stem + '.pdf')
     name = filepath.stem
 
-    inkscape_version = subprocess.check_output(['inkscape', '--version'])
+    inkscape_version = subprocess.check_output(['inkscape', '--version'], universal_newlines=True)
     log.debug(inkscape_version)
     inkscape_version_number = int(inkscape_version.split()[1][0])
 
