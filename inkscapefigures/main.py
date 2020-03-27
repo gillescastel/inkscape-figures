@@ -128,25 +128,34 @@ def maybe_recompile_figure(filepath):
 
     inkscape_version = subprocess.check_output(['inkscape', '--version'], universal_newlines=True)
     log.debug(inkscape_version)
-    inkscape_version_number = int(inkscape_version.split()[1][0])
+    inkscape_version_number = float(inkscape_version.split()[1].split('-')[0])
 
-    if inkscape_version_number != 0:
-        command = [
-            'inkscape', filepath,
-            '--export-area-page',
-            '--export-dpi', '300',
-            '--export-type=pdf', 
-            '--export-latex',
-            '--export-file', pdf_path
-        ]
-    else:
+    if inkscape_version_number < 1:
         command = [
             'inkscape',
             '--export-area-page',
             '--export-dpi', '300',
             '--export-pdf', pdf_path,
             '--export-latex', filepath
-        ]
+            ]
+    elif inkscape_version_number < 1.1:
+        command = [
+            'inkscape', filepath,
+            '--export-area-page',
+            '--export-dpi', '300',
+            '--export-type=pdf',
+            '--export-latex',
+            '--export-file', pdf_path
+            ]
+    else:
+        command = [
+            'inkscape', filepath,
+            '--export-area-page',
+            '--export-dpi', '300',
+            '--export-type=pdf',
+            '--export-latex',
+            '--export-filename', pdf_path
+            ]
 
     log.debug('Running command:')
     log.debug(' '.join(str(e) for e in command))
