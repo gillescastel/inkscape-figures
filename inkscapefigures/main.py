@@ -128,9 +128,17 @@ def maybe_recompile_figure(filepath):
 
     inkscape_version = subprocess.check_output(['inkscape', '--version'], universal_newlines=True)
     log.debug(inkscape_version)
-    inkscape_version_number = float(inkscape_version.split()[1].split('-')[0])
 
-    if inkscape_version_number < 1:
+    # Convert
+    # - 'Inkscape 0.92.4 (unknown)' to [0, 92, 4]
+    # - 'Inkscape 1.1-dev (3a9df5bcce, 2020-03-18)' to [1, 1]
+    inkscape_version_number = [int(part) for part in inkscape_version.split()[1].replace('-dev', '').split('.')]
+
+    # Right-pad the array with zeros (so [1, 1] becomes [1, 1, 0])
+    inkscape_version_number= inkscape_version_number + [0] * (3 - len(inkscape_version_number))
+
+    # Tuple comparison is like version comparison
+    if inkscape_version_number < [1, 0, 0]:
         command = [
             'inkscape',
             '--export-area-page',
@@ -138,7 +146,7 @@ def maybe_recompile_figure(filepath):
             '--export-pdf', pdf_path,
             '--export-latex', filepath
             ]
-    elif inkscape_version_number < 1.1:
+    elif inkscape_version_number < [1, 1, 0]:
         command = [
             'inkscape', filepath,
             '--export-area-page',
