@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import re
 import logging
 import subprocess
 import warnings
@@ -132,7 +133,9 @@ def maybe_recompile_figure(filepath):
     # Convert
     # - 'Inkscape 0.92.4 (unknown)' to [0, 92, 4]
     # - 'Inkscape 1.1-dev (3a9df5bcce, 2020-03-18)' to [1, 1]
-    inkscape_version_number = [int(part) for part in inkscape_version.split()[1].replace('-dev', '').split('.')]
+    # - 'Inkscape 1.0rc1' to [1, 0]
+    inkscape_version = re.findall(r'[0-9.]+', inkscape_version)[0]
+    inkscape_version_number = [int(part) for part in inkscape_version.split('.')]
 
     # Right-pad the array with zeros (so [1, 1] becomes [1, 1, 0])
     inkscape_version_number= inkscape_version_number + [0] * (3 - len(inkscape_version_number))
