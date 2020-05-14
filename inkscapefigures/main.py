@@ -149,15 +149,6 @@ def maybe_recompile_figure(filepath):
             '--export-pdf', pdf_path,
             '--export-latex', filepath
             ]
-    elif inkscape_version_number < [1, 1, 0]:
-        command = [
-            'inkscape', filepath,
-            '--export-area-page',
-            '--export-dpi', '300',
-            '--export-type=pdf',
-            '--export-latex',
-            '--export-file', pdf_path
-            ]
     else:
         command = [
             'inkscape', filepath,
