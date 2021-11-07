@@ -4,6 +4,7 @@ import os
 import re
 import logging
 import subprocess
+import textwrap
 import warnings
 from pathlib import Path
 from shutil import copy
@@ -160,7 +161,7 @@ def maybe_recompile_figure(filepath):
             ]
 
     log.debug('Running command:')
-    log.debug(' '.join(str(e) for e in command))
+    log.debug(textwrap.indent(' '.join(str(e) for e in command), '    '))
 
     # Recompile the svg file
     completed_process = subprocess.run(command)
@@ -171,8 +172,10 @@ def maybe_recompile_figure(filepath):
         log.debug('Command succeeded')
 
     # Copy the LaTeX code to include the file to the clipboard
-    pyperclip.copy(latex_template(name, beautify(name)))
-
+    template = latex_template(name, beautify(name))
+    pyperclip.copy(template)
+    log.debug('Copying LaTeX template:')
+    log.debug(textwrap.indent(template, '    '))
 
 def watch_daemon_inotify():
     import inotify.adapters
@@ -305,7 +308,12 @@ def edit(root):
         path = files[index]
         add_root(figures)
         inkscape(path)
-        pyperclip.copy(latex_template(path.stem, beautify(path.stem)))
+
+        # Copy the LaTeX code to include the file to the clipboard
+        template = latex_template(path.stem, beautify(path.stem))
+        pyperclip.copy(template)
+        log.debug('Copying LaTeX template:')
+        log.debug(textwrap.indent(template, '    '))
 
 if __name__ == '__main__':
     cli()
