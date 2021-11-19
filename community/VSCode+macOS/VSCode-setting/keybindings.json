@@ -1,0 +1,119 @@
+// Place your key bindings in this file to override the defaultsauto[]i
+[
+    // Sympy setup
+    {
+        "key": "shift+e",
+        "command": "latex-sympy-calculator.equal",
+        "when": "editorHasSelection && editorTextFocus && resourceLangId == 'latex' || editorHasSelection && editorTextFocus && resourceLangId == 'markdown'"
+    },
+    {
+        "key": "shift+alt+cmd+e",
+        "command": "-latex-sympy-calculator.equal",
+        "when": "editorHasSelection && editorTextFocus && resourceLangId == 'latex' || editorHasSelection && editorTextFocus && resourceLangId == 'markdown'"
+    },
+    {
+        "key": "shift+r",
+        "command": "latex-sympy-calculator.replace",
+        "when": "editorHasSelection && editorTextFocus && resourceLangId == 'latex' || editorHasSelection && editorTextFocus && resourceLangId == 'markdown'"
+    },
+    {
+        "key": "shift+alt+cmd+r",
+        "command": "-latex-sympy-calculator.replace",
+        "when": "editorHasSelection && editorTextFocus && resourceLangId == 'latex' || editorHasSelection && editorTextFocus && resourceLangId == 'markdown'"
+    },
+    // Auto Correction setup
+    {
+        "key": "cmd+l",
+        "command": "extension.multiCommand.execute",
+        "args": {
+            "sequence": [
+                "cSpell.goToPreviousSpellingIssue",
+                {
+                    "command": "editor.action.codeAction",
+                    "args": {
+                        "kind": "quickfix",
+                        "apply": "first"
+                    }
+                },
+                "cursorUndo",
+            ]
+        }
+    },
+    {
+        "key": "cmd+k",
+        "command": "extension.multiCommand.execute",
+        "args": {
+            "sequence": [
+                "editor.action.marker.prev",
+                {
+                    "command": "editor.action.codeAction",
+                    "args": {
+                        "kind": "quickfix",
+                        "apply": "first"
+                    }
+                },
+                "cursorUndo",
+            ]
+        }
+    },
+    // Inkscape setup
+    {
+        "key": "ctrl+f",
+        "command": "extension.multiCommand.execute",
+        "args": {
+            "sequence": [
+                "editor.action.clipboardCopyAction",
+                "editor.action.insertLineAfter",
+                "cursorUp",
+                "editor.action.deleteLines",
+                {
+                    "command": "editor.action.insertSnippet",
+                    "args": {
+                        "name": "incfig"
+                    }
+                },
+                {
+                    "command": "command-runner.run",
+                    "args": {
+                        "command": "inkscapeCreate",
+                    },
+                    "terminal": {
+                        "name": "runCommand",
+                        "shellArgs": [],
+                        "autoClear": true,
+                        "autoFocus": false
+                    }
+                },
+            ]
+        },
+        "when": "editorTextFocus && vim.active && vim.use<C-f> && !inDebugRepl && vim.mode == 'Insert'"
+    },
+    {
+        "key": "ctrl+f",
+        "command": "command-runner.run",
+        "args": {
+            "command": "inkscapeEdit",
+            "terminal": {
+                "name": "runCommand",
+                "shellArgs": [],
+                "autoClear": true,
+                "autoFocus": false
+            }
+        },
+        "when": "editorTextFocus && vim.active && vim.use<C-f> && !inDebugRepl && vim.mode == 'Normal'"
+    },
+    {
+        "key": "ctrl+f",
+        "command": "command-runner.run",
+        "args": {
+            "command": "inkscapeStart",
+            "terminal": {
+                "name": "runCommand",
+                "shellArgs": [],
+                "autoClear": true,
+                "autoFocus": false
+            }
+        },
+        "when": "editorTextFocus && vim.active && vim.use<C-f> && !inDebugRepl && vim.mode == 'Visual'"
+    }
+]
