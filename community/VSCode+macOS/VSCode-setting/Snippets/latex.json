@@ -1,0 +1,14 @@
+{
+	"incfig": {
+		"prefix": "incfig",
+		"body": [
+			"\\begin{figure}[H]",
+			"\t\\centering",
+			"\t\\incfig{${1:$CLIPBOARD}}",
+			"\t\\caption{${2:title}}",
+			"\t\\label{fig:${1:$CLIPBOARD}}",
+			"\\end{figure}",
+		],
+		"description": "Inserts mathematical diagram"
+	}
+}
