@@ -305,6 +305,7 @@ def edit(root):
         path = files[index]
         add_root(figures)
         inkscape(path)
+        pyperclip.copy(latex_template(path.stem, beautify(path.stem)))
 
 if __name__ == '__main__':
     cli()
