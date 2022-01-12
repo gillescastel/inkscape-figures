@@ -27,6 +27,7 @@ def inkscape(path):
 
 def indent(text, indentation=0):
     lines = text.split('\n');
+
     return '\n'.join(" " * indentation + line for line in lines)
 
 def beautify(name):
@@ -47,6 +48,7 @@ def import_file(name, path):
     spec = util.spec_from_file_location(name, path)
     module = util.module_from_spec(spec)
     spec.loader.exec_module(module)
+
     return module
 
 
@@ -60,6 +62,7 @@ if not user_dir.is_dir():
 roots_file =  user_dir / 'roots'
 template = user_dir / 'template.svg'
 config = user_dir / 'config.py'
+use_eps = False
 
 if not roots_file.is_file():
     roots_file.touch()
@@ -72,11 +75,13 @@ if not template.is_file():
 if config.exists():
     config_module = import_file('config', config)
     latex_template = config_module.latex_template
+    use_eps = config_module.use_eps
 
 
 def add_root(path):
     path = str(path)
     roots = get_roots()
+
     if path in roots:
         return None
 
@@ -99,6 +104,7 @@ def watch(daemon):
     """
     Watches for figures.
     """
+
     if platform.system() == 'Linux':
         watcher_cmd = watch_daemon_inotify
     else:
@@ -118,14 +124,21 @@ def watch(daemon):
 def maybe_recompile_figure(filepath):
     filepath = Path(filepath)
     # A file has changed
+
     if filepath.suffix != '.svg':
-        log.debug('File has changed, but is nog an svg {}'.format(
+        log.debug('File has changed, but is not an svg {}'.format(
             filepath.suffix))
+
         return
 
     log.info('Recompiling %s', filepath)
 
-    pdf_path = filepath.parent / (filepath.stem + '.pdf')
+    if use_eps:
+        suffix = '.eps'
+    else:
+        suffix = '.pdf'
+    compiled_path = filepath.parent / (filepath.stem + suffix)
+
     name = filepath.stem
 
     inkscape_version = subprocess.check_output(['inkscape', '--version'], universal_newlines=True)
@@ -142,23 +155,32 @@ def maybe_recompile_figure(filepath):
     inkscape_version_number= inkscape_version_number + [0] * (3 - len(inkscape_version_number))
 
     # Tuple comparison is like version comparison
+
     if inkscape_version_number < [1, 0, 0]:
         command = [
             'inkscape',
             '--export-area-page',
             '--export-dpi', '300',
-            '--export-pdf', pdf_path,
             '--export-latex', filepath
             ]
+
+        if use_eps:
+            command += ['--export-eps', compiled_path]
+        else:
+            command += ['--export-pdf', compiled_path]
     else:
         command = [
             'inkscape', filepath,
             '--export-area-page',
             '--export-dpi', '300',
-            '--export-type=pdf',
             '--export-latex',
-            '--export-filename', pdf_path
+            '--export-filename', compiled_path
             ]
+
+        if use_eps:
+            command+= ['--export-type=eps']
+        else:
+            command +=['--export-type=pdf']
 
     log.debug('Running command:')
     log.debug(textwrap.indent(' '.join(str(e) for e in command), '    '))
@@ -191,6 +213,7 @@ def watch_daemon_inotify():
 
         # Watch the actual figure directories
         log.info('Watching directories: ' + ', '.join(get_roots()))
+
         for root in roots:
             try:
                 i.add_watch(root, mask=IN_CLOSE_WRITE)
@@ -202,8 +225,10 @@ def watch_daemon_inotify():
 
             # If the file containing figure roots has changes, update the
             # watches
+
             if path == str(roots_file):
                 log.info('The roots file has been updated. Updating watches.')
+
                 for root in roots:
                     try:
                         i.remove_watch(root)
@@ -211,6 +236,7 @@ def watch_daemon_inotify():
                     except Exception:
                         log.debug('Could not remove root %s', root)
                 # Break out of the loop, setting up new watches.
+
                 break
 
             # A file has changed
@@ -236,10 +262,12 @@ def watch_daemon_fswatch():
 
             # If the file containing figure roots has changes, update the
             # watches
+
             if filepath == str(roots_file):
                 log.info('The roots file has been updated. Updating watches.')
                 p.terminate()
                 log.debug('Removed main watch %s')
+
                 break
             maybe_recompile_figure(filepath)
 
@@ -263,14 +291,17 @@ def create(title, root):
     title = title.strip()
     file_name = title.replace(' ', '-').lower() + '.svg'
     figures = Path(root).absolute()
+
     if not figures.exists():
         figures.mkdir()
 
     figure_path = figures / file_name
 
     # If a file with this name already exists, append a '2'.
+
     if figure_path.exists():
         print(title + ' 2')
+
         return
 
     copy(str(template), str(figure_path))
@@ -304,6 +335,7 @@ def edit(root):
     # Open a selection dialog using a gui picker like rofi
     names = [beautify(f.stem) for f in files]
     _, index, selected = pick(names)
+
     if selected:
         path = files[index]
         add_root(figures)
