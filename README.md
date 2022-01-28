@@ -8,7 +8,8 @@ More information in this [blog post](https://castel.dev/post/lecture-notes-2/).
 You need Python >= 3.7, as well as a picker. Current supported pickers are:
 
 * [rofi](https://github.com/davatorium/rofi) on Linux systems
-* [choose](https://github.com/chipsenkbeil/choose) on MacOS
+* [choose](https://github.com/chipsenkbeil/choose) on macOS
+* [fswatch](https://github.com/emcrisostomo/fswatch) on macOS
 
 ## Installation
 
